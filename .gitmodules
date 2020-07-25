@@ -1,0 +1,6 @@
+[submodule "thirdparty/BBHash"]
+	path = thirdparty/BBHash
+	url = git@github.com:rizkg/BBHash.git
+[submodule "thirdparty/kseqpp"]
+	path = thirdparty/kseqpp
+	url = git@github.com:cartoonist/kseqpp.git
