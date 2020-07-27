@@ -41,17 +41,16 @@ WARNS+= -Wall
 CFLAGS+=-std=c++14 -pipe -fopenmp ${WARNS}
 LDFLAGS+=-lpthread -lz
 
-INCS=-isystem thirdparty/BBHash -isystem thirdparty/kseqpp/include -I inc
+INCS=-isystem thirdparty/BBHash -isystem thirdparty/kseqpp/include -I include/set_count
 SUBMODULE_TOKEN=thirdparty/BBHash/makefile thirdparty/kseqpp/CMakeLists.txt 
 SUBMODULE_REQ=thirdparty/kseqpp/include/kseq++/config.hpp
 
 CPPS = $(wildcard src/*.cpp)
 OBJS = $(CPPS:.cpp=.o)
 DEPS = $(OBJS:%.o=%.d)
-SET_COUNT_OBJ = src/counter.o src/kmer.o
+SET_COUNT_OBJ = 
 
 EXEC=set_count
-LIB=set_count.a
 
 all: $(EXEC) $(LIB)
 
@@ -65,13 +64,6 @@ set_count: bin bin/set_count
 bin/set_count: $(SET_COUNT_OBJ) src/set_count.o
 	@echo "[LD] $@"
 	+@$(CC) -o $@ $^ $(CFLAGS) $(LDFLAGS)
-
-set_count.a: lib lib/set_count.a
-lib/set_count.a: $(SET_COUNT_OBJ)
-	@echo "[AR] $@"
-	@$(AR) rcs $@ $(SET_COUNT_OBJ)
-
--include $(DEPS)
 
 %.o: %.cpp $(SUBMODULE_TOKEN)
 	@echo "[CC] $<"
