@@ -57,8 +57,7 @@ all: $(EXEC) $(LIB)
 bin: submodule_build
 	@mkdir --parent ./bin
 
-lib:
-	@mkdir --parent ./lib
+-include $(DEPS)
 
 set_count: bin bin/set_count
 bin/set_count: $(SET_COUNT_OBJ) src/set_count.o

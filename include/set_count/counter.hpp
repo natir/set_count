@@ -155,8 +155,12 @@ namespace set_count {
 	}
       }
 
+      // Clean kmer set
+      std::sort(kmers.begin(), kmers.end());
+      kmers.erase(std::unique(kmers.begin(), kmers.end()), kmers.end());
+      
       // build index
-      this->_index = new boomphf::mphf<u_int64_t, hasher_t>(kmers.size(), kmers, nb_threads, 1);
+      this->_index = new boomphf::mphf<u_int64_t, hasher_t>(kmers.size(), kmers, nb_threads);
 
       // init counter
       this->_count = std::vector<std::pair<std::uint64_t, std::uint8_t>>(kmers.size());
