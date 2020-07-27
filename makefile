@@ -43,6 +43,7 @@ LDFLAGS+=-lpthread -lz
 
 INCS=-isystem thirdparty/BBHash -isystem thirdparty/kseqpp/include -I inc
 SUBMODULE_TOKEN=thirdparty/BBHash/makefile thirdparty/kseqpp/CMakeLists.txt 
+SUBMODULE_REQ=thirdparty/kseqpp/include/kseq++/config.hpp
 
 CPPS = $(wildcard src/*.cpp)
 OBJS = $(CPPS:.cpp=.o)
@@ -54,7 +55,7 @@ LIB=set_count.a
 
 all: $(EXEC) $(LIB)
 
-bin:
+bin: submodule_build
 	@mkdir --parent ./bin
 
 lib:
@@ -78,6 +79,11 @@ lib/set_count.a: $(SET_COUNT_OBJ)
 
 $(SUBMODULE_TOKEN):
 	git submodule update --init
+
+submodule_build: $(SUBMODULE_TOKEN) $(SUBMODULE_REQ)
+
+thirdparty/kseqpp/include//kseq++/config.hpp: thirdparty/kseqpp/include//kseq++/config.hpp.in
+	cd thirdparty/kseqpp/ && cmake . && make
 
 # TODO release: we remove the 'kfc' and 'bin/kfc' binary files for convenience when tests; remove that later
 clean:
