@@ -79,7 +79,7 @@ namespace set_count {
     }
 
     // build index
-    this->_index = new boomphf::mphf<u_int64_t, hasher_t>(kmers.size(), kmers, nb_threads);
+    this->_index = new boomphf::mphf<u_int64_t, hasher_t>(kmers.size(), kmers, nb_threads, 1);
 
     // init counter
     this->_count = std::vector<std::pair<std::uint64_t, std::uint8_t>>(kmers.size());
@@ -190,9 +190,6 @@ namespace set_count {
     u_int64_t idx = this->_index->lookup(kmer);
       
     if(idx != ULLONG_MAX && this->_count[idx].first == kmer && this->_count[idx].second < UINT8_MAX) {
-      if(idx > this->_count.size()) {
-	std::cout<<"kmer "<<kmer<<" idx "<<idx<<" count size "<<this->_count.size()<<std::endl;
-      }
 
       this->_count[idx].second++;
     } 

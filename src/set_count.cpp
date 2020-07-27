@@ -27,24 +27,9 @@ int main(int argc, char* argv[]) {
     usage();
     return -1;
   }
-  
+
+  usage();
   return -1;
-  
-  int k = std::stoi(argv[1]);
-  int nb_threads = std::stoi(argv[5]);
-
-  std::cerr<<"Begin of build"<<std::endl;
-  set_count::Counter counter(argv[2], k, nb_threads);
-  std::cerr<<"End of build"<<std::endl;
-
-  std::cerr<<"Begin of count"<<std::endl;
-  counter.count(argv[3]);
-  std::cerr<<"End of count"<<std::endl;
-  
-  std::cerr<<"Begin of save"<<std::endl;
-  counter.save(argv[4]);
-  std::cerr<<"End of save"<<std::endl;
-  return 0;
 }
 
 void usage() {
@@ -62,9 +47,9 @@ int index(int argc, char* argv[]) {
 
     return -1;
   }
+  std::uint8_t k = std::uint8_t(std::stoi(argv[2]));
 
-  int k = std::stoi(argv[2]);
-  int nb_threads = std::stoi(argv[5]);
+  std::uint8_t nb_threads = std::uint8_t(std::stoi(argv[5]));
 
   set_count::Counter counter(argv[3], k, nb_threads);
   

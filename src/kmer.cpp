@@ -45,29 +45,12 @@ namespace set_count {
       }
     }
 
-    kmer_t canonical(kmer_t kmer, std::uint8_t k) {
-      if(parity_even(kmer)) {
-        return kmer;
-      } else {
-	return revcomp(kmer, k);
-      }
-    }
-
-    bool parity_even(kmer_t kmer) {
-      std::bitset<64> tmp(kmer);
-      return tmp.count() == 0;
-    }
-
     kmer_t revcomp(kmer_t kmer, std::uint8_t k) {
       return rev(speed_comp(kmer), k);
     }
 
     kmer_t speed_comp(kmer_t kmer) {
       return kmer ^ 0b1010101010101010101010101010101010101010101010101010101010101010;
-    }
-
-    kmer_t comp(kmer_t kmer, std::uint8_t k) {
-      return speed_comp(kmer) & ((kmer_t(1) << (2 * k)) - 1);
     }
 
     kmer_t rev(kmer_t kmer, std::uint8_t k) {
