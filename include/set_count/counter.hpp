@@ -68,10 +68,10 @@ namespace set_count {
       kmer = (kmer >> 8 & 0x00FF00FF00FF00FF) | (kmer & 0x00FF00FF00FF00FF) << 8;
       kmer = (kmer >> 16 & 0x0000FFFF0000FFFF) | (kmer & 0x0000FFFF0000FFFF) << 16;
       kmer = (kmer >> 32 & 0x00000000FFFFFFFF) | (kmer & 0x00000000FFFFFFFF) << 32;
-    
+
       return kmer >> (64 - k * 2);
     }
-      
+
     kmer_t revcomp(kmer_t kmer, std::uint8_t k) {
       return rev(speed_comp(kmer), k);
     }
@@ -85,7 +85,7 @@ namespace set_count {
     std::uint8_t _k;
     boophf_t* _index;
     std::vector<std::pair<std::uint64_t, std::uint8_t>> _count;
- 
+
   public:
 
     Counter(char* path)  {
@@ -98,10 +98,10 @@ namespace set_count {
       this->_mask = (kmer_t(1) << (2 * this->_k)) - 1;
 
       // read counter value
-      size_t length;
+      std::uint64_t length;
       in.read(reinterpret_cast<char *>(&length), sizeof(length));
       this->_count.resize(length);
-    
+
       for(size_t i = 0; i != this->_count.size(); i++) {
 	kmer_t kmer;
 	std::uint8_t count;
@@ -116,7 +116,7 @@ namespace set_count {
 
       in.close();
     }
-    
+
     Counter(char* kmer_set, std::uint8_t k, std::uint8_t nb_threads)  {
       // basic value init
       this->_k = k;
@@ -135,7 +135,7 @@ namespace set_count {
 
 	kmer_t forward = kmer::seq2bit(record.seq.substr(0, k));
 	kmer_t reverse = kmer::revcomp(forward, k);
-      
+
 	if(forward < reverse) {
 	  kmers.push_back(forward);
 	} else {
@@ -146,7 +146,7 @@ namespace set_count {
 	  kmer_t nuc = kmer::nuc2bit(n);
 	  forward = ((forward << 2) & this->_mask) ^ nuc;
 	  reverse = (reverse >> 2) ^ ((nuc ^ 0b10)  << 2 * (k - 1));
-        
+
 	  if(forward < reverse) {
 	    kmers.push_back(forward);
 	  } else {
@@ -158,31 +158,34 @@ namespace set_count {
       // Clean kmer set
       std::sort(kmers.begin(), kmers.end());
       kmers.erase(std::unique(kmers.begin(), kmers.end()), kmers.end());
-      
+
       // build index
       this->_index = new boomphf::mphf<u_int64_t, hasher_t>(kmers.size(), kmers, nb_threads);
 
       // init counter
       this->_count = std::vector<std::pair<std::uint64_t, std::uint8_t>>(kmers.size());
 
+
       while(!kmers.empty()) {
 	kmer_t kmer = kmers.back();
 
-	this->_count[this->_index->lookup(kmer)] = std::make_pair(kmer, 0);
+	u_int64_t index = this->_index->lookup(kmer);
+
+	this->_count[index] = std::make_pair(kmer, 0);
 
 	kmers.pop_back();
       }
-    }    
+    }
 
     void count(char* reads) {
       klibpp::KSeq record;
       klibpp::SeqStreamIn iss(reads);
-    
+
       while(iss >> record) {
 	if(record.seq.length() < this->_k) {
 	  continue;
 	}
-      
+
 	kmer_t forward = kmer::seq2bit(record.seq.substr(0, this->_k));
 	kmer_t reverse = kmer::revcomp(forward, this->_k);
 
@@ -196,7 +199,8 @@ namespace set_count {
 	  kmer_t nuc = kmer::nuc2bit(n);
 	  forward = ((forward << 2) & this->_mask) ^ nuc;
 	  reverse = (reverse >> 2) ^ ((nuc ^ 0b10) << 2 * (this->_k - 1));
-	
+
+
 	  if(forward < reverse) {
 	    this->inc(forward);
 	  } else {
@@ -212,7 +216,7 @@ namespace set_count {
 
       out.write(reinterpret_cast<char const*>(&this->_k), sizeof(this->_k));
 
-      size_t length = this->_count.size();
+      std::uint64_t length = this->_count.size();
       out.write(reinterpret_cast<char const*>(&length), sizeof(this->_count.size()));
 
       for(auto val : this->_count) {
@@ -221,7 +225,7 @@ namespace set_count {
       }
 
       this->_index->save(out);
-    
+
       out.close();
     }
 
@@ -235,7 +239,7 @@ namespace set_count {
 	return this->value(reverse);
       }
     }
-    
+
     std::uint8_t value(kmer_t kmer) {
 
       u_int64_t idx = this->_index->lookup(kmer);
@@ -261,20 +265,19 @@ namespace set_count {
 	this->inc(reverse);
       }
     }
-    
+
     void inc(kmer_t kmer) {
       u_int64_t idx = this->_index->lookup(kmer);
-      
-      if(idx != ULLONG_MAX && this->_count[idx].first == kmer && this->_count[idx].second < UINT8_MAX) {
 
+      if(idx != ULLONG_MAX && this->_count[idx].first == kmer && this->_count[idx].second < UINT8_MAX) {
 	this->_count[idx].second++;
-      } 
+      }
     }
 
     std::uint8_t k()  {
       return this->_k;
     }
-    
+
     std::vector<std::pair<std::uint64_t, std::uint8_t>>* count() {
       return &this->_count;
     }

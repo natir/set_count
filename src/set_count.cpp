@@ -13,7 +13,7 @@ int dump(int argc, char* argv[]);
 int main(int argc, char* argv[]) {
   if (argc < 2) {
     usage();
-    
+
     return -1;
   }
 
@@ -52,9 +52,9 @@ int index(int argc, char* argv[]) {
   std::uint8_t nb_threads = std::uint8_t(std::stoi(argv[5]));
 
   set_count::Counter counter(argv[3], k, nb_threads);
-  
+
   counter.save(argv[4]);
-  
+
   return 0;
 }
 
@@ -68,9 +68,9 @@ int count(int argc, char* argv[]) {
   set_count::Counter counter(argv[2]);
 
   counter.count(argv[3]);
-  
+
   counter.save(argv[4]);
-  
+
   return 0;
 }
 
@@ -86,6 +86,6 @@ int dump(int argc, char* argv[]) {
   for(auto val: *counter.count()) {
     std::cout<<set_count::kmer::kmer2seq(val.first, counter.k())<<","<<int(val.second)<<std::endl;
   }
-  
+
   return 0;
 }
