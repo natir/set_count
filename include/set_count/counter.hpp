@@ -2,6 +2,7 @@
 #define _HG_SET_COUNT_COUNTER_HG_
 
 // std include
+#include <cmath>
 #include <vector>
 #include <fstream>
 #include <algorithm>
@@ -9,6 +10,7 @@
 // thirdparty include
 #include <BooPHF.h>
 #include <kseq++/seqio.hpp>
+#include <bufferedMQF.h>
 
 namespace set_count {
 
@@ -282,7 +284,120 @@ namespace set_count {
       return &this->_count;
     }
   };
-}
 
+
+
+  class MQF_counter {
+  private:
+    kmer_t _mask;
+    std::uint8_t _k;
+    bufferedMQF _counter;  
+  
+  public:
+    MQF_counter(char* path, std::uint8_t k, double nb_uniq_kmer, char* counter_path): _k(k), _counter() {
+
+      /* Init MQF counter */
+      std::uint64_t nslots = pow(2, ceil(log(nb_uniq_kmer * 1.05)/log(2))); 
+
+      // nslolts is a power of two by moving bit we move the bits set at one
+      // 12 is ~= to -log(10^{-5})
+      bufferedMQF_init(&this->_counter, nslots >> 6, nslots, log2(nslots) + 12, 0, 255, counter_path);
+
+      /* Read uniq kmer and set in counter */
+      std::string kmer;
+      std::uint64_t _count;
+    
+      std::ifstream in;
+      in.open(path);
+
+      while(in >> kmer >> _count) {
+	kmer_t forward = kmer::seq2bit(kmer);
+	kmer_t reverse = kmer::revcomp(forward, k);
+      
+	if (forward < reverse) {
+	  bufferedMQF_insert(&this->_counter, forward, 1, true, true);
+	} else {
+	  bufferedMQF_insert(&this->_counter, forward, 1, true, true);
+	}
+      }
+    
+      in.close();
+    }
+
+    MQF_counter(char* path, std::uint8_t k): _k(k), _counter() {
+      bufferedMQF_deserialize(&this->_counter, path);
+    }
+    
+   void count(char* reads) {
+      klibpp::KSeq record;
+      klibpp::SeqStreamIn iss(reads);
+
+      while(iss >> record) {
+	if(record.seq.length() < this->_k) {
+	  continue;
+	}
+
+	kmer_t forward = kmer::seq2bit(record.seq.substr(0, this->_k));
+	kmer_t reverse = kmer::revcomp(forward, this->_k);
+
+	if(forward < reverse) {
+	  this->inc(forward);
+	} else {
+	  this->inc(reverse);
+	}
+
+	for(char n : record.seq.substr(this->_k)) {
+	  kmer_t nuc = kmer::nuc2bit(n);
+	  forward = ((forward << 2) & this->_mask) ^ nuc;
+	  reverse = (reverse >> 2) ^ ((nuc ^ 0b10) << 2 * (this->_k - 1));
+
+
+	  if(forward < reverse) {
+	    this->inc(forward);
+	  } else {
+	    this->inc(reverse);
+	  }
+	}
+      }
+    }
+
+    void save() {
+      bufferedMQF_serialize(&this->_counter);
+    }
+    
+    std::uint8_t value(std::string kmer) {
+      kmer_t forward = kmer::seq2bit(kmer);
+      kmer_t reverse = kmer::revcomp(forward, this->_k);
+
+      if(forward < reverse) {
+	return this->value(forward);
+      } else {
+	return this->value(reverse);
+      }
+    }
+
+    std::uint8_t value(kmer_t kmer) {
+      return bufferedMQF_count_key(&this->_counter, kmer);
+    }
+    
+
+    void inc(std::string kmer) {
+      kmer_t forward = kmer::seq2bit(kmer);
+      kmer_t reverse = kmer::revcomp(forward, this->_k);
+
+      if(forward < reverse) {
+	this->inc(forward);
+      } else {
+	this->inc(reverse);
+      }
+    }
+
+    void inc(kmer_t kmer) {
+      if(0 != bufferedMQF_count_key(&this->_counter, kmer)) {
+	bufferedMQF_insert(&this->_counter, kmer, 1, true, true);
+      }
+    }
+  };
+}
 
 #endif // _HG_SET_COUNT_COUNTER_HG_

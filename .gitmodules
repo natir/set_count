@@ -4,3 +4,6 @@
 [submodule "thirdparty/kseqpp"]
 	path = thirdparty/kseqpp
 	url = git@github.com:cartoonist/kseqpp.git
+[submodule "thirdparty/MQF"]
+	path = thirdparty/MQF
+	url = git@github.com:dib-lab/MQF.git

@@ -41,3 +41,25 @@ set_count dump {counts}
 ```
 
 Count is write in stdout in csv format
+
+### MQF_index
+
+MQF_count count only kmer uniq in reference.
+
+- k: size of kmer you want count (not upper than 32)
+- threads: number of threads set_count can use durring index building (not upper than 255)
+- out: prefix of output
+- reads: a sequence file, in fasta or fastq compress in gzip or not, whose kmers you want to count
+
+```
+jellyfish count -m {k} -s {number of kmer estimation} -t {threads} -o {out}.jf reference.fasta
+jellyfish dump -L 0 -U 1 -c -o {out}.csv {out}.jf
+set_count mqf_count {k} {threads} {out}.csv {reads} {out}.mqf
+```
+
+### MQF_count
+
+```
+cp {index}.mqf {count}.mqf
+set_count mqf_count {k} {reads} {count}.mqf
+```
