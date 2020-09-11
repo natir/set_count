@@ -62,7 +62,7 @@ bin: submodule_build
 set_count: bin bin/set_count
 bin/set_count: $(SET_COUNT_OBJ) src/set_count.o
 	@echo "[LD] $@"
-	+@$(CC) -o $@ $^ $(CFLAGS) $(LDFLAGS)
+	@$(CC) -o $@ $^ $(CFLAGS) $(LDFLAGS)
 
 %.o: %.cpp $(SUBMODULE_TOKEN)
 	@echo "[CC] $<"
@@ -77,7 +77,7 @@ thirdparty/kseqpp/include/kseq++/config.hpp: thirdparty/kseqpp/include//kseq++/c
 	cd thirdparty/kseqpp/ && cmake . && make
 
 thirdparty/MQF/build/src/libMQF.a: thirdparty/MQF/CMakeLists.txt
-	mkdir -p thirdparty/MQF/build && cd thirdparty/MQF/build && cmake .. && make
+	mkdir -p thirdparty/MQF/build && cd thirdparty/MQF/build && cmake .. -DCMAKE_BUILD_TYPE=Debug && make
 
 # TODO release: we remove the 'kfc' and 'bin/kfc' binary files for convenience when tests; remove that later
 clean:

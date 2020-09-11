@@ -10,7 +10,7 @@
 // thirdparty include
 #include <BooPHF.h>
 #include <kseq++/seqio.hpp>
-#include <bufferedMQF.h>
+#include <gqf.h>
 
 namespace set_count {
 
@@ -291,17 +291,18 @@ namespace set_count {
   private:
     kmer_t _mask;
     std::uint8_t _k;
-    bufferedMQF _counter;  
+    QF _counter;
+    std::string _path;
   
   public:
-    MQF_counter(char* path, std::uint8_t k, double nb_uniq_kmer, char* counter_path): _k(k), _counter() {
+    MQF_counter(char* path, std::uint8_t k, double nb_uniq_kmer, char* counter_path): _k(k), _counter(), _path(counter_path) {
 
       /* Init MQF counter */
       std::uint64_t nslots = pow(2, ceil(log(nb_uniq_kmer * 1.05)/log(2))); 
 
       // nslolts is a power of two by moving bit we move the bits set at one
       // 12 is ~= to -log(10^{-5})
-      bufferedMQF_init(&this->_counter, nslots >> 6, nslots, log2(nslots) + 12, 0, 255, counter_path);
+      qf_init(&this->_counter, nslots, 2*k, 0, 8, 0, true, counter_path, 0);
 
       /* Read uniq kmer and set in counter */
       std::string kmer;
@@ -315,9 +316,9 @@ namespace set_count {
 	kmer_t reverse = kmer::revcomp(forward, k);
       
 	if (forward < reverse) {
-	  bufferedMQF_insert(&this->_counter, forward, 1, true, true);
+	  qf_insert(&this->_counter, forward, 1, false, false);
 	} else {
-	  bufferedMQF_insert(&this->_counter, forward, 1, true, true);
+	  qf_insert(&this->_counter, reverse, 1, false, false);
 	}
       }
     
@@ -325,7 +326,7 @@ namespace set_count {
     }
 
     MQF_counter(char* path, std::uint8_t k): _k(k), _counter() {
-      bufferedMQF_deserialize(&this->_counter, path);
+      qf_deserialize(&this->_counter, path);
     }
     
    void count(char* reads) {
@@ -361,8 +362,8 @@ namespace set_count {
       }
     }
 
-    void save() {
-      bufferedMQF_serialize(&this->_counter);
+    void save(char* output) {
+      qf_serialize(&this->_counter, output);
     }
     
     std::uint8_t value(std::string kmer) {
@@ -377,7 +378,7 @@ namespace set_count {
     }
 
     std::uint8_t value(kmer_t kmer) {
-      return bufferedMQF_count_key(&this->_counter, kmer);
+      return qf_count_key(&this->_counter, kmer);
     }
     
 
@@ -393,8 +394,8 @@ namespace set_count {
     }
 
     void inc(kmer_t kmer) {
-      if(0 != bufferedMQF_count_key(&this->_counter, kmer)) {
-	bufferedMQF_insert(&this->_counter, kmer, 1, true, true);
+      if(0 != qf_count_key(&this->_counter, kmer)) {
+	qf_insert(&this->_counter, kmer, 1, false, false);
       }
     }
   };

@@ -46,7 +46,7 @@ void usage() {
   std::cerr<<"\tcount {index_filename} {reads_filename} {count_filename}"<<std::endl;
   std::cerr<<"\tdump  {count_filename}"<<std::endl;
   std::cerr<<"\tmqf_index {kmer_size} {number_of_thread} {number_of_uniq_kmer} {uniq_kmer_file} {mqf_save}"<<std::endl;
-  std::cerr<<"\tmqf_count {kmer_size} {count_filename} {reads_filename} "<<std::endl;
+  std::cerr<<"\tmqf_count {kmer_size} {index_filename} {reads_filename} {count_filename}"<<std::endl;
 }
 
 int index(int argc, char* argv[]) {
@@ -112,13 +112,13 @@ int mqf_index(int argc, char* argv[]) {
 
   set_count::MQF_counter counter(argv[5], k, nb_uniq_kmer, argv[6]);
 
-  counter.save();
+  counter.save(argv[6]);
 
   return 0;
 }
 
 int mqf_count(int argc, char* argv[]) {
-  if(argc != 5) {
+  if(argc != 6) {
     usage();
 
     return -1;
@@ -130,7 +130,7 @@ int mqf_count(int argc, char* argv[]) {
 
   counter.count(argv[4]);
 
-  counter.save();
+  counter.save(argv[5]);
 
   return 0;
 }
