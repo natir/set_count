@@ -14,52 +14,65 @@ make
 
 ## Usage
 
-### Index
+### Get uniq kmer
+
+```
+jellyfish count -m 31 -s {number of kmer estimation} -t {threads} -o uniq_kmer.jf {reference}
+jellyfish dump -L 0 -U 1 -c -o uniq_kmer.csv uniq_kmer.jf
+```
+
+### MPHF
+
+#### Index
 
 - k: size of kmer you want count (not upper than 32)
-- kmers: a sequence file, in fasta or fastq compress in gzip or not, contains kmer you want count, sequence short than k is ignore
 - index: path where index is write
 - threads: number of threads set_count can use durring index building (not upper than 255)
 
 ```
-set_count index {k} {kmers} {index} {threads}
+set_count mphf_index {k} uniq_kmer.csv {index} {threads}
 ```
 
-### Count
+#### Count
 
 - reads: a sequence file, in fasta or fastq compress in gzip or not, whose kmers you want to count
 - counts: path where count is write
 
 ```
-set_count count {index} {reads} {counts}
+set_count mphf_count {index} {reads} {counts}
 ```
 
-### Dump
+#### Dump
 
 ```
-set_count dump {counts}
+set_count mphf_dump {counts} {reference}
 ```
 
-Count is write in stdout in csv format
+### MQF
 
-### MQF_index
+#### Index
 
 MQF_count count only kmer uniq in reference.
 
 - k: size of kmer you want count (not upper than 32)
-- threads: number of threads set_count can use durring index building (not upper than 255)
+- number_of_kmer: number of line in uniq_kmer.csv multiply by 10
 - out: prefix of output
+
+```
+set_count mqf_index {k} {number_of_kmer} uniq_kmer.csv {out}.mqf
+```
+
+#### Count
+
 - reads: a sequence file, in fasta or fastq compress in gzip or not, whose kmers you want to count
 
 ```
-jellyfish count -m {k} -s {number of kmer estimation} -t {threads} -o {out}.jf reference.fasta
-jellyfish dump -L 0 -U 1 -c -o {out}.csv {out}.jf
-set_count mqf_count {k} {threads} {out}.csv {reads} {out}.mqf
-```
-
-### MQF_count
-
-```
 cp {index}.mqf {count}.mqf
-set_count mqf_count {k} {reads} {count}.mqf
+set_count mqf_count {k} {reads} {out}.mqf
+```
+
+#### Dump
+
+```
+set_count mqf_dump {k} {counts} {reference}
 ```
