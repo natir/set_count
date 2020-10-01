@@ -120,9 +120,9 @@ int mphf_dump(int argc, char* argv[]) {
       reverse = (reverse >> 2) ^ ((nuc ^ 0b10)  << 2 * (counter.k() - 1));
 
       if(forward < reverse) {
-	std::cout<<counter.value(forward)<<std::endl;
+	std::cout<<int(counter.value(forward))<<std::endl;
       } else {
-	std::cout<<counter.value(reverse)<<std::endl;
+	std::cout<<int(counter.value(reverse))<<std::endl;
       }
     }
   }
@@ -199,9 +199,9 @@ int mqf_dump(int argc, char* argv[]) {
       reverse = (reverse >> 2) ^ ((nuc ^ 0b10)  << 2 * (counter.k() - 1));
 
       if(forward < reverse) {
-	std::cout<<counter.value(forward)<<std::endl;
+	std::cout<<int(counter.value(forward))<<std::endl;
       } else {
-	std::cout<<counter.value(reverse)<<std::endl;
+	std::cout<<int(counter.value(reverse))<<std::endl;
       }
     }
   }
