@@ -39,11 +39,11 @@ endif
 
 WARNS+= -Wall
 CFLAGS+=-std=c++14 -pipe -fopenmp ${WARNS}
-LDFLAGS+=-lpthread -lz  thirdparty/MQF/build/src/libMQF.a thirdparty/MQF/build/ThirdParty/stxxl/lib/libstxxl_debug.a
+LDFLAGS+=-lpthread -lz  thirdparty/MQF/build/src/libMQF.a thirdparty/MQF/build/ThirdParty/stxxl/lib/libstxxl.a
 
 INCS=-isystem thirdparty/BBHash -isystem thirdparty/kseqpp/include -isystem thirdparty/MQF/include -I include/set_count 
 SUBMODULE_TOKEN=thirdparty/BBHash/makefile thirdparty/kseqpp/CMakeLists.txt thirdparty/MQF/CMakeLists.txt
-SUBMODULE_REQ=thirdparty/kseqpp/include/kseq++/config.hpp thirdparty/MQF/build/src/libMQF.a
+SUBMODULE_REQ=thirdparty/kseqpp/include/kseq++/config.hpp thirdparty/MQF/build/src/libMQF.a thirdparty/MQF/build/ThirdParty/stxxl/lib/libstxxl.a
 
 CPPS = $(wildcard src/*.cpp)
 OBJS = $(CPPS:.cpp=.o)
@@ -77,12 +77,14 @@ thirdparty/kseqpp/include/kseq++/config.hpp: thirdparty/kseqpp/include//kseq++/c
 	cd thirdparty/kseqpp/ && cmake . && make
 
 thirdparty/MQF/build/src/libMQF.a: thirdparty/MQF/CMakeLists.txt
-	mkdir -p thirdparty/MQF/build && cd thirdparty/MQF/build && cmake .. -DCMAKE_BUILD_TYPE=Debug && make
+	mkdir -p thirdparty/MQF/build && cd thirdparty/MQF/build && cmake .. -DCMAKE_BUILD_TYPE=Release && make clean && make
 
-# TODO release: we remove the 'kfc' and 'bin/kfc' binary files for convenience when tests; remove that later
+thirdparty/MQF/build/ThirdParty/stxxl/lib/libstxxl.a: thirdparty/MQF/CMakeLists.txt
+
+	mkdir -p thirdparty/MQF/build && cd thirdparty/MQF/build && cmake .. -DCMAKE_BUILD_TYPE=Release && make clean && make
 clean:
 	@echo "[clean]"
-	@rm -rf bin $(LIB) $(OBJS) $(DEPS)
+	@rm -rf bin $(LIB) $(OBJS) $(DEPS) $(SUBMODULE_REQ)
 
 rebuild: clean
 	@$(MAKE) -s all
