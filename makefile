@@ -77,16 +77,23 @@ thirdparty/kseqpp/include/kseq++/config.hpp: thirdparty/kseqpp/include//kseq++/c
 	cd thirdparty/kseqpp/ && cmake . && make
 
 thirdparty/MQF/build/src/libMQF.a: thirdparty/MQF/CMakeLists.txt
-	mkdir -p thirdparty/MQF/build && cd thirdparty/MQF/build && cmake .. -DCMAKE_BUILD_TYPE=Release && make clean && make
+	mkdir -p thirdparty/MQF/build && cd thirdparty/MQF/build && cmake .. -DCMAKE_BUILD_TYPE=Release && make
 
 thirdparty/MQF/build/ThirdParty/stxxl/lib/libstxxl.a: thirdparty/MQF/CMakeLists.txt
+	mkdir -p thirdparty/MQF/build && cd thirdparty/MQF/build && cmake .. -DCMAKE_BUILD_TYPE=Release && make
 
-	mkdir -p thirdparty/MQF/build && cd thirdparty/MQF/build && cmake .. -DCMAKE_BUILD_TYPE=Release && make clean && make
 clean:
 	@echo "[clean]"
 	@rm -rf bin $(LIB) $(OBJS) $(DEPS) $(SUBMODULE_REQ)
 
+clean_all: clean
+	@echo "[clean all]"
+	@rm -rf $(SUBMODULE_REQ)
+
 rebuild: clean
+	@$(MAKE) -s all
+
+rebuild_all: clean_all
 	@$(MAKE) -s all
 
 check_buildsys: $(SUBMODULE_TOKEN)

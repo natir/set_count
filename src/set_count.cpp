@@ -45,7 +45,7 @@ void usage() {
   std::cerr<<"USAGE:"<<std::endl;
   std::cerr<<"\tset_count [SUBCOMMAND]"<<std::endl<<std::endl;
   std::cerr<<"SUBCOMMAND:"<<std::endl;
-  std::cerr<<"\tmphf_index {kmer_size} {uniq_kmer_file} {index_filename} {number_of_thread}"<<std::endl;
+  std::cerr<<"\tmphf_index {kmer_size} {number_of_uniq_kmer} {uniq_kmer_file} {index_filename} {number_of_thread}"<<std::endl;
   std::cerr<<"\tmphf_count {index_filename} {reads_filename} {count_filename}"<<std::endl;
   std::cerr<<"\tmphf_dump  {count_filename} {reference_filename}"<<std::endl;
   std::cerr<<"\tmqf_index {kmer_size} {number_of_uniq_kmer} {uniq_kmer_file} {mqf_save}"<<std::endl;
@@ -54,19 +54,20 @@ void usage() {
 }
 
 int mphf_index(int argc, char* argv[]) {
-  if(argc != 6) {
+  if(argc != 7) {
     usage();
 
     return -1;
   }
 
   std::uint8_t k = std::uint8_t(std::stoi(argv[2]));
+  std::uint64_t nb_uniq_kmer = std::uint64_t(std::stol(argv[3]));
+ 
+  std::uint8_t nb_threads = std::uint8_t(std::stoi(argv[6]));
 
-  std::uint8_t nb_threads = std::uint8_t(std::stoi(argv[5]));
+  set_count::Mphf counter(argv[4], k, nb_uniq_kmer, nb_threads);
 
-  set_count::Mphf counter(argv[3], k, nb_threads);
-
-  counter.save(argv[4]);
+  counter.save(argv[5]);
 
   return 0;
 }
