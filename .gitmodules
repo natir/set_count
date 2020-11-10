@@ -7,3 +7,6 @@
 [submodule "thirdparty/MQF"]
 	path = thirdparty/MQF
 	url = git@github.com:dib-lab/MQF.git
+[submodule "thirdparty/Brisk"]
+	path = thirdparty/Brisk
+	url = https://github.com/Malfoy/Brisk.git

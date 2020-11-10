@@ -39,11 +39,11 @@ endif
 
 WARNS+= -Wall
 CFLAGS+=-std=c++14 -pipe -fopenmp ${WARNS}
-LDFLAGS+=-lpthread -lz  thirdparty/MQF/build/src/libMQF.a thirdparty/MQF/build/ThirdParty/stxxl/lib/libstxxl.a
+LDFLAGS+=-lpthread -lz  thirdparty/MQF/build/src/libMQF.a thirdparty/MQF/build/ThirdParty/stxxl/lib/libstxxl.a thirdparty/Brisk/build/brisk/libbrisk_lib.a
 
-INCS=-isystem thirdparty/BBHash -isystem thirdparty/kseqpp/include -isystem thirdparty/MQF/include -I include/set_count 
-SUBMODULE_TOKEN=thirdparty/BBHash/makefile thirdparty/kseqpp/CMakeLists.txt thirdparty/MQF/CMakeLists.txt
-SUBMODULE_REQ=thirdparty/kseqpp/include/kseq++/config.hpp thirdparty/MQF/build/src/libMQF.a thirdparty/MQF/build/ThirdParty/stxxl/lib/libstxxl.a
+INCS=-isystem thirdparty/BBHash -isystem thirdparty/kseqpp/include -isystem thirdparty/MQF/include -isystem thirdparty/Brisk/brisk -I include/set_count 
+SUBMODULE_TOKEN=thirdparty/BBHash/makefile thirdparty/kseqpp/CMakeLists.txt thirdparty/MQF/CMakeLists.txt thirdparty/Brisk/CMakeLists.txt
+SUBMODULE_REQ=thirdparty/kseqpp/include/kseq++/config.hpp thirdparty/MQF/build/src/libMQF.a thirdparty/MQF/build/ThirdParty/stxxl/lib/libstxxl.a thirdparty/Brisk/build/brisk/libbrisk_lib.a
 
 CPPS = $(wildcard src/*.cpp)
 OBJS = $(CPPS:.cpp=.o)
@@ -81,6 +81,9 @@ thirdparty/MQF/build/src/libMQF.a: thirdparty/MQF/CMakeLists.txt
 
 thirdparty/MQF/build/ThirdParty/stxxl/lib/libstxxl.a: thirdparty/MQF/CMakeLists.txt
 	mkdir -p thirdparty/MQF/build && cd thirdparty/MQF/build && cmake .. -DCMAKE_BUILD_TYPE=Release && make
+
+thirdparty/Brisk/build/brisk/libbrisk_lib.a: thirdparty/Brisk/CMakeLists.txt
+	mkdir -p thirdparty/Brisk/build && cd thirdparty/Brisk/build && cmake .. -DCMAKE_BUILD_TYPE=Release && make
 
 clean:
 	@echo "[clean]"

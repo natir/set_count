@@ -16,5 +16,6 @@
 #include "kmer.hpp"
 #include "mphf.hpp"
 #include "mqf.hpp"
+#include "brisk.hpp"
 
 #endif // _HG_SET_COUNT_COUNTER_HG_
